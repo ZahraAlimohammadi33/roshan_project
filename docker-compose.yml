@@ -1,0 +1,23 @@
+services:
+  web:
+    build: .
+    container_name: document_qa_web
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout 300"
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DJANGO_DB_PATH: /app/data/db.sqlite3
+      CHROMA_PERSIST_DIR: /app/chroma_db
+      MEDIA_ROOT: /app/media
+    volumes:
+      - sqlite_data:/app/data
+      - chroma_data:/app/chroma_db
+      - media_data:/app/media
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+  chroma_data:
+  media_data:

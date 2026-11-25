@@ -1,0 +1,455 @@
+
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    #rag-app {
+        --rag-primary: #6855dc;
+        --rag-primary-hover: #5542c5;
+        --rag-text: #202238;
+        --rag-muted: #777b91;
+        --rag-border: #e8e8f0;
+        --rag-bg: #f6f6fb;
+        max-width: 1100px;
+        margin: 10px auto 40px;
+        color: var(--rag-text);
+        font-family: inherit;
+    }
+
+    #rag-app * {
+        box-sizing: border-box;
+    }
+
+    #rag-app .rag-header {
+        background: linear-gradient(120deg, #5142bd, #8271e9);
+        color: white;
+        border-radius: 18px;
+        padding: 30px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #rag-app .rag-header h1 {
+        color: white;
+        font-size: 25px;
+        margin: 0 0 10px;
+        font-weight: 700;
+    }
+
+    #rag-app .rag-header p {
+        color: #eeebff;
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    #rag-app .rag-icon {
+        position: absolute;
+        right: 30px;
+        top: 24px;
+        font-size: 45px;
+        opacity: .25;
+    }
+
+    #rag-app .rag-card {
+        background: white;
+        border: 1px solid var(--rag-border);
+        border-radius: 15px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 15px rgba(30, 25, 80, .035);
+    }
+
+    #rag-app .rag-section-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 7px;
+        color: var(--rag-text);
+    }
+
+    #rag-app .rag-description {
+        color: var(--rag-muted);
+        font-size: 13px;
+        line-height: 1.8;
+        margin: 0 0 20px;
+    }
+
+    #rag-app textarea {
+        width: 100%;
+        min-height: 125px;
+        resize: vertical;
+        border: 1px solid var(--rag-border);
+        border-radius: 11px;
+        padding: 15px;
+        font-family: inherit;
+        font-size: 14px;
+        line-height: 1.8;
+        color: var(--rag-text);
+        background: #fcfcff;
+        outline: none;
+        transition: .2s;
+    }
+
+    #rag-app textarea:focus {
+        border-color: var(--rag-primary);
+        box-shadow: 0 0 0 3px rgba(104, 85, 220, .10);
+    }
+
+    #rag-app .rag-documents {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    #rag-app .rag-doc {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        border: 1px solid var(--rag-border);
+        padding: 13px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: .2s;
+        background: #fff;
+        min-width: 0;
+    }
+
+    #rag-app .rag-doc:hover {
+        border-color: var(--rag-primary);
+        background: #f9f8ff;
+    }
+
+    #rag-app .rag-doc:has(input:checked) {
+        border-color: var(--rag-primary);
+        background: #f5f3ff;
+    }
+
+    #rag-app .rag-doc input {
+        accent-color: var(--rag-primary);
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    #rag-app .rag-file-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        background: #f0edff;
+        color: var(--rag-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        flex-shrink: 0;
+    }
+
+    #rag-app .rag-doc-title {
+        font-size: 13px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    #rag-app .rag-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    #rag-app .rag-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 12px 23px;
+        border: none;
+        border-radius: 9px;
+        background: var(--rag-primary);
+        color: white !important;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none !important;
+        transition: .2s;
+    }
+
+    #rag-app .rag-button:hover {
+        background: var(--rag-primary-hover);
+        transform: translateY(-1px);
+    }
+
+    #rag-app .rag-button:disabled {
+        opacity: .65;
+        cursor: wait;
+        transform: none;
+    }
+
+    #rag-app .rag-secondary {
+        background: white;
+        color: var(--rag-text) !important;
+        border: 1px solid var(--rag-border);
+    }
+
+    #rag-app .rag-secondary:hover {
+        background: var(--rag-bg);
+    }
+
+    #rag-app .rag-error {
+        background: #fff1f1;
+        border: 1px solid #ffd3d3;
+        color: #b42318;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    #rag-app .rag-answer {
+        border-left: 4px solid var(--rag-primary);
+        background: #faf9ff;
+        padding: 20px;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        line-height: 2;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    #rag-app .rag-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    #rag-app .rag-meta span {
+        padding: 7px 12px;
+        border-radius: 7px;
+        background: #f1efff;
+        color: #5845c3;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    #rag-app .rag-source {
+        border: 1px solid var(--rag-border);
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 12px;
+        background: white;
+    }
+
+    #rag-app .rag-source-title {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    #rag-app .rag-source p {
+        font-size: 13px;
+        color: var(--rag-muted);
+        line-height: 1.9;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        margin: 0;
+    }
+
+    #rag-app .rag-empty {
+        padding: 20px;
+        background: #faf9ff;
+        border: 1px dashed #d8d2f5;
+        border-radius: 10px;
+        color: var(--rag-muted);
+        font-size: 13px;
+        text-align: center;
+    }
+
+    #rag-app .rag-spinner {
+        display: none;
+        font-size: 12px;
+        color: var(--rag-muted);
+        margin-top: 12px;
+    }
+
+    @media(max-width: 600px) {
+        #rag-app .rag-header {
+            padding: 23px;
+        }
+
+        #rag-app .rag-icon {
+            display: none;
+        }
+
+        #rag-app .rag-card {
+            padding: 17px;
+        }
+
+        #rag-app .rag-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        #rag-app .rag-button {
+            width: 100%;
+        }
+    }
+</style>
+
+<div id="content-main">
+<div id="rag-app">
+
+    <div class="rag-header">
+        <div class="rag-icon">✦</div>
+        <h1>Document AI Assistant</h1>
+        <p>
+            Ask questions and get intelligent answers based on your indexed documents.
+            Your answers are grounded in your uploaded knowledge base.
+        </p>
+    </div>
+
+    {% if error %}
+        <div class="rag-error">
+            <strong>Something went wrong</strong>
+            <div>{{ error }}</div>
+        </div>
+    {% endif %}
+
+    <form method="post" id="rag-form">
+        {% csrf_token %}
+
+        <div class="rag-card">
+            <h2 class="rag-section-title">✦ Ask your question</h2>
+            <p class="rag-description">
+                Write your question below. The AI will search your documents
+                and generate an answer using the most relevant information.
+            </p>
+
+            <textarea
+                id="id_question"
+                name="question"
+                placeholder="For example: What is the company's remote work policy?"
+                required
+            >{{ question_value }}</textarea>
+
+            <div class="rag-spinner" id="rag-loading">
+                Processing your question... Please wait.
+            </div>
+        </div>
+
+        <div class="rag-card">
+            <h2 class="rag-section-title">▤ Knowledge sources</h2>
+            <p class="rag-description">
+                Choose the documents you want to search.
+                Leave all unchecked to search across every indexed document.
+            </p>
+
+            {% if documents %}
+                <div class="rag-documents">
+                    {% for doc in documents %}
+                        <label class="rag-doc">
+                            <input
+                                type="checkbox"
+                                name="document_ids"
+                                value="{{ doc.id }}"
+                                {% if doc.id|stringformat:"s" in selected_ids %}checked{% endif %}
+                            >
+                            <span class="rag-file-icon">▤</span>
+                            <span class="rag-doc-title">{{ doc.title }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="rag-empty">
+                    No indexed documents found. Please upload a DOCX document first.
+                </div>
+            {% endif %}
+
+            <div class="rag-actions">
+                <button type="submit" class="rag-button" id="rag-submit"
+                    {% if not documents %}disabled{% endif %}>
+                    <span>✦</span>
+                    <span>Generate answer</span>
+                </button>
+
+                <a href="{% url 'admin:core_questionlog_changelist' %}"
+                   class="rag-button rag-secondary">
+                    Question history →
+                </a>
+            </div>
+        </div>
+    </form>
+
+    {% if result %}
+        <div class="rag-card" id="rag-result">
+            <h2 class="rag-section-title">✦ AI generated answer</h2>
+            <p class="rag-description">
+                Here is the response generated from your indexed documents.
+            </p>
+
+            <div class="rag-answer">{{ result.answer }}</div>
+
+            <div class="rag-meta">
+                <span>✓ Answer generated</span>
+                <span>◷ {{ result.processing_time_ms }} ms</span>
+                <span>▤ {{ result.sources|length }} sources</span>
+            </div>
+
+            <div style="margin-top:28px;">
+                <h2 class="rag-section-title">Retrieved sources</h2>
+                <p class="rag-description">
+                    These document sections were retrieved to support the answer.
+                </p>
+
+                {% for source in result.sources %}
+                    <div class="rag-source">
+                        <div class="rag-source-title">
+                            ▤ {{ source.title }}
+                            <span style="color:#888;font-weight:normal;">
+                                — Chunk {{ source.chunk_index }}
+                            </span>
+                        </div>
+                        <p>{{ source.excerpt }}</p>
+                    </div>
+                {% empty %}
+                    <div class="rag-empty">
+                        No source chunks were retrieved.
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="rag-actions">
+                <a href="{{ result.history_url }}" class="rag-button rag-secondary">
+                    View saved question →
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+</div>
+
+<script>
+(function () {
+    const form = document.getElementById("rag-form");
+    const button = document.getElementById("rag-submit");
+    const loading = document.getElementById("rag-loading");
+
+    if (form && button) {
+        form.addEventListener("submit", function () {
+            button.disabled = true;
+            button.querySelector("span:last-child").textContent = "Processing...";
+            loading.style.display = "block";
+        });
+    }
+})();
+</script>
+{% endblock %}
